@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnEase - Professional CBT Portal</title>
+    <style>
+        :root {
+            --primary: #2563eb; --secondary: #64748b; --success: #22c55e;
+            --bg-light: #f8fafc; --text-dark: #1e293b; --white: #ffffff;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-light); margin: 0; color: var(--text-dark); }
+        
+        /* Utility */
+        .hidden { display: none !important; }
+        .btn { padding: 0.8rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .primary { background: var(--primary); color: white; }
+        .secondary { background: var(--secondary); color: white; }
+
+        /* Login */
+        .overlay { position: fixed; inset: 0; background: var(--bg-light); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .card { background: white; padding: 2.5rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; width: 350px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+
+        /* Main Layout */
+        .cbt-container { display: flex; flex-direction: column; height: 100vh; }
+        header { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; border-bottom: 2px solid #e2e8f0; }
+        .timer-box { background: #fee2e2; color: #ef4444; padding: 0.5rem 1rem; border-radius: 8px; font-weight: bold; }
+        main { display: grid; grid-template-columns: 250px 1fr; flex-grow: 1; }
+        
+        /* Sidebar */
+        .q-sidebar { background: white; border-right: 1px solid #e2e8f0; padding: 1.5rem; overflow-y: auto; }
+        .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .q-num { height: 40px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; font-size: 0.8rem; }
+        .q-num.active { background: var(--primary); color: white; }
+        .q-num.answered { background: var(--success); color: white; }
+
+        /* Question Area */
+        .q-display { padding: 2rem 10%; max-width: 900px; }
+        .options-container { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; }
+        .option-btn { padding: 1.2rem; text-align: left; background: white; border: 2px solid #e2e8f0; border-radius: 10px; cursor: pointer; }
+        .option-btn.selected { border-color: var(--primary); background: #eff6ff; }
+        .controls { display: flex; justify-content: space-between; margin-top: 2rem; }
+
+        /* Admin & Results */
+        .admin-panel { position: fixed; inset: 0; background: rgba(15,23,42,0.9); z-index: 3000; display: flex; align-items: center; justify-content: center; }
+        .admin-card { background: white; padding: 2rem; border-radius: 12px; width: 500px; }
+        textarea { width: 100%; height: 200px; margin: 10px 0; font-family: monospace; }
+        .score-circle { width: 120px; height: 120px; border: 8px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 1.5rem auto; font-size: 2rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="loginPage" class="overlay">
+        <div class="card">
+            <h1 style="color:var(--primary); margin:0;">LearnEase</h1>
+            <p>Student Examination Portal</p>
+            <input type="text" id="studentName" placeholder="Enter Full Name">
+            <input type="text" id="studentID" placeholder="Student ID">
+            <button class="btn primary" style="width:100%" onclick="startExam()">Enter Exam</button>
+            <p style="font-size: 0.7rem; color: gray; margin-top: 20px;">Admin: Ctrl + Shift + A</p>
+        </div>
+    </div>
+
+    <div id="examPage" class="cbt-container hidden">
+        <header>
+            <div id="brandHeader"><strong>LearnEase</strong> | <span id="displaySubject">General Knowledge</span></div>
+            <div id="timer" class="timer-box">10:00</div>
+        </header>
+        <main>
+            <aside class="q-sidebar">
+                <h3>Navigation</h3>
+                <div class="q-grid" id="qGrid"></div>
+            </aside>
+            <section class="q-display">
+                <div id="qProgress" style="color: var(--secondary)">Question 1 of 3</div>
+                <h2 id="qText">Loading question...</h2>
+                <div id="options" class="options-container"></div>
+                <div class="controls">
+                    <button class="btn secondary" onclick="prevQ()">Previous</button>
+                    <button class="btn primary" onclick="nextQ()" id="nextBtn">Next Question</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="resultPage" class="overlay hidden">
+        <div class="card">
+            <h2>Result Summary</h2>
+            <div class="score-circle" id="scoreCircle">0%</div>
+            <p id="resultMsg"></p>
+            <button class="btn primary" onclick="downloadReport()">Download Report</button>
+            <button class="btn secondary" onclick="location.reload()">Exit</button>
+        </div>
+    </div>
+
+    <div id="adminPage" class="admin-panel hidden">
+        <div class="admin-card">
+            <h3>Admin Control Center</h3>
+            <label>Question Bank (JSON)</label>
+            <textarea id="adminJSON"></textarea>
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button class="btn primary" onclick="saveAdmin()">Save & Sync</button>
+                <button class="btn secondary" onclick="closeAdmin()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let quizData = [
+            { q: "What is the capital of France?", options: ["Berlin", "London", "Paris", "Madrid"], correct: 2 },
+            { q: "Which language runs in a web browser?", options: ["Java", "C", "Python", "JavaScript"], correct: 3 },
+            { q: "What is 5 + 7?", options: ["10", "12", "14", "15"], correct: 1 }
+        ];
+
+        let currentIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let student = { name: "", id: "" };
+        let timeLeft = 600; // 10 mins
+
+        function startExam() {
+            const n = document.getElementById('studentName').value;
+            const i = document.getElementById('studentID').value;
+            if(!n || !i) return alert("Fill all fields");
+            student = { name: n, id: i };
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('examPage').classList.remove('hidden');
+            initExam();
+        }
+
+        function initExam() {
+            renderGrid();
+            renderQuestion();
+            const timerInt = setInterval(() => {
+                timeLeft--;
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if(timeLeft <= 0) { clearInterval(timerInt); finishExam(); }
+            }, 1000);
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('qGrid');
+            grid.innerHTML = '';
+            quizData.forEach((_, i) => {
+                const div = document.createElement('div');
+                div.className = `q-num ${userAnswers[i] !== null ? 'answered' : ''} ${i === currentIndex ? 'active' : ''}`;
+                div.innerText = i + 1;
+                div.onclick = () => { currentIndex = i; renderQuestion(); };
+                grid.appendChild(div);
+            });
+        }
+
+        function renderQuestion() {
+            const data = quizData[currentIndex];
+            document.getElementById('qText').innerText = data.q;
+            document.getElementById('qProgress').innerText = `Question ${currentIndex + 1} of ${quizData.length}`;
+            const optCont = document.getElementById('options');
+            optCont.innerHTML = '';
+            
+            data.options.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = `option-btn ${userAnswers[currentIndex] === i ? 'selected' : ''}`;
+                b.innerText = opt;
+                b.onclick = () => { userAnswers[currentIndex] = i; renderQuestion(); renderGrid(); };
+                optCont.appendChild(b);
+            });
+            
+            document.getElementById('nextBtn').innerText = currentIndex === quizData.length - 1 ? "Finish Exam" : "Next Question";
+            renderGrid();
+        }
+
+        function nextQ() {
+            if(currentIndex < quizData.length -1) { currentIndex++; renderQuestion(); }
+            else { if(confirm("Submit Exam?")) finishExam(); }
+        }
+
+        function prevQ() { if(currentIndex > 0) { currentIndex--; renderQuestion(); } }
+
+        function finishExam() {
+            let score = 0;
+            quizData.forEach((q, i) => { if(userAnswers[i] === q.correct) score++; });
+            const percent = Math.round((score / quizData.length) * 100);
+            document.getElementById('examPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+            document.getElementById('scoreCircle').innerText = percent + "%";
+            document.getElementById('resultMsg').innerText = `${student.name}, you got ${score} correct.`;
+        }
+
+        function downloadReport() {
+            let content = `LEARNEASE REPORT\nName: ${student.name}\nID: ${student.id}\nScore: ${document.getElementById('scoreCircle').innerText}`;
+            const blob = new Blob([content], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Report_${student.name}.txt`;
+            a.click();
+        }
+
+        // Admin Secret Key
+        document.addEventListener('keydown', e => {
+            if(e.ctrlKey && e.shiftKey && e.key === 'A') {
+                document.getElementById('adminPage').classList.remove('hidden');
+                document.getElementById('adminJSON').value = JSON.stringify(quizData, null, 2);
+            }
+        });
+
+        function saveAdmin() {
+            try {
+                quizData = JSON.parse(document.getElementById('adminJSON').value);
+                userAnswers = new Array(quizData.length).fill(null);
+                currentIndex = 0;
+                alert("Data Synced!");
+                closeAdmin();
+                renderQuestion();
+            } catch(e) { alert("Invalid JSON"); }
+        }
+
+        function closeAdmin() { document.getElementById('adminPage').classList.add('hidden'); }
+    </script>
+</body>
+</html>
