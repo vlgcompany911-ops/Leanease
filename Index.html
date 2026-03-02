@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnEase - Professional CBT Portal</title>
+    <link rel="icon" type="image/jpeg" href="logo.jpg">
+    <style>
+        :root {
+            --primary: #2563eb; --secondary: #64748b; --success: #22c55e;
+            --bg-light: #f8fafc; --text-dark: #1e293b; --white: #ffffff;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); margin: 0; color: var(--text-dark); overflow-x: hidden; }
+        
+        /* Utility Classes */
+        .hidden { display: none !important; }
+        .btn { padding: 0.8rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; display: inline-block; text-decoration: none; text-align: center; }
+        .primary { background: var(--primary); color: white; }
+        .primary:hover { background: #1d4ed8; }
+        .secondary { background: var(--secondary); color: white; }
+        .secondary:hover { background: #475569; }
+
+        /* Login/Overlay Screens */
+        .overlay { position: fixed; inset: 0; background: var(--bg-light); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; width: 100%; max-width: 400px; }
+        .brand-logo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary); margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+
+        /* Main CBT Layout */
+        .cbt-container { display: flex; flex-direction: column; height: 100vh; }
+        header { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; }
+        .timer-box { background: #fee2e2; color: #ef4444; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
+        
+        main { display: grid; grid-template-columns: 280px 1fr; flex-grow: 1; overflow: hidden; }
+        
+        /* Sidebar Question Navigation */
+        .q-sidebar { background: white; border-right: 1px solid #e2e8f0; padding: 1.5rem; overflow-y: auto; }
+        .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 1rem; }
+        .q-num { height: 45px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+        .q-num.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .q-num.answered { background: var(--success); color: white; border-color: var(--success); }
+
+        /* Question Content Area */
+        .q-display { padding: 3rem 5%; overflow-y: auto; max-width: 1000px; margin: 0 auto; width: 100%; }
+        .options-container { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; }
+        .option-btn { padding: 1.2rem; text-align: left; background: white; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; font-size: 1.05rem; transition: 0.2s; }
+        .option-btn:hover { border-color: var(--primary); background: #f0f7ff; }
+        .option-btn.selected { border-color: var(--primary); background: #eff6ff; font-weight: 600; }
+        .controls { display: flex; justify-content: space-between; margin-top: 3rem; border-top: 1px solid #e2e8f0; padding-top: 2rem; }
+
+        /* Admin & Result Cards */
+        .admin-panel { position: fixed; inset: 0; background: rgba(15,23,42,0.95); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .admin-card { background: white; padding: 2rem; border-radius: 15px; width: 100%; max-width: 600px; }
+        textarea { width: 100%; height: 250px; margin: 10px 0; font-family: 'Courier New', monospace; padding: 10px; border-radius: 8px; border: 1px solid #ddd; }
+        
+        .score-circle { width: 140px; height: 140px; border: 10px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 2rem auto; font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+        .result-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+
+        @media (max-width: 768px) {
+            main { grid-template-columns: 1fr; }
+            .q-sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loginPage" class="overlay">
+        <div class="card">
+            <img src="logo.jpg" alt="LearnEase Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/100?text=Owl'">
+            <h1 style="color:var(--primary); margin:0; font-size: 2.2rem;">LearnEase</h1>
+            <p style="color:var(--secondary); margin-bottom: 20px;">Secure Examination Portal</p>
+            <input type="text" id="studentName" placeholder="Full Name" autocomplete="off">
+            <input type="text" id="studentID" placeholder="Student ID (e.g. LE-001)" autocomplete="off">
+            <button class="btn primary" style="width:100%; margin-top: 10px;" onclick="startExam()">Launch Exam</button>
+            <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 25px;">Admin: Ctrl + Shift + A</p>
+        </div>
+    </div>
+
+    <div id="examPage" class="cbt-container hidden">
+        <header>
+            <div><strong style="color:var(--primary)">LearnEase</strong> | <span id="displaySubject">General Assessment</span></div>
+            <div id="timer" class="timer-box">10:00</div>
+        </header>
+        <main>
+            <aside class="q-sidebar">
+                <h3 style="margin-top:0">Question Navigator</h3>
+                <div class="q-grid" id="qGrid"></div>
+                <div style="margin-top: 30px; font-size: 0.85rem; color: var(--secondary);">
+                    <p>● Active: Blue</p>
+                    <p>● Answered: Green</p>
+                </div>
+            </aside>
+            <section class="q-display">
+                <div id="qProgress" style="font-weight: bold; color: var(--secondary); margin-bottom: 10px;">Question 1 of 0</div>
+                <h2 id="qText" style="line-height: 1.4;">Loading Question...</h2>
+                <div id="options" class="options-container"></div>
+                <div class="controls">
+                    <button class="btn secondary" onclick="prevQ()">Previous</button>
+                    <button class="btn primary" onclick="nextQ()" id="nextBtn">Next Question</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="resultPage" class="overlay hidden">
+        <div class="card" style="max-width: 450px;">
+            <h2 style="margin-top:0">Exam Summary</h2>
+            <div class="score-circle" id="scoreCircle">0%</div>
+            <p id="resultMsg" style="font-size: 1.1rem; line-height: 1.5;"></p>
+            <div class="result-actions">
+                <button class="btn secondary" onclick="downloadReport()">Save Report</button>
+                <button class="btn primary" onclick="location.reload()">New Session</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPage" class="admin-panel hidden">
+        <div class="admin-card">
+            <h2 style="margin-top:0">LearnEase Control Center</h2>
+            <p style="font-size: 0.9rem; color: var(--secondary);">Modify the question bank (JSON format) and settings below.</p>
+            <label style="font-weight:bold; display:block; margin-top:15px;">Question Bank JSON</label>
+            <textarea id="adminJSON"></textarea>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn primary" onclick="saveAdmin()">Apply Changes</button>
+                <button class="btn secondary" onclick="closeAdmin()">Discard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- APP DATA ---
+        let quizData = [
+            { q: "Which programming language is mainly used for web interactivity?", options: ["Python", "JavaScript", "C++", "Java"], correct: 1 },
+            { q: "What is the result of 10 + 20 in a string context: '10' + 20?", options: ["30", "1020", "Error", "NaN"], correct: 1 },
+            { q: "Which symbol is used for ID selectors in CSS?", options: [".", "#", "&", "*"], correct: 1 }
+        ];
+
+        let currentIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let student = { name: "", id: "" };
+        let timeLeft = 600; // Total exam time in seconds (10 mins)
+        let timerInterval;
+
+        // --- CORE FUNCTIONS ---
+        function startExam() {
+            const name = document.getElementById('studentName').value;
+            const id = document.getElementById('studentID').value;
+            if(!name || !id) return alert("Please enter both Student Name and ID.");
+            
+            student = { name, id };
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('examPage').classList.remove('hidden');
+            
+            // Check for saved progress
+            const saved = localStorage.getItem('learnease_save');
+            if(saved) {
+                const data = JSON.parse(saved);
+                if(data.id === student.id) userAnswers = data.answers;
+            }
+            
+            initExam();
+        }
+
+        function initExam() {
+            renderGrid();
+            renderQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Time is up! Submitting automatically.");
+                    finishExam();
+                }
+            }, 1000);
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('qGrid');
+            grid.innerHTML = '';
+            quizData.forEach((_, i) => {
+                const div = document.createElement('div');
+                div.className = `q-num ${userAnswers[i] !== null ? 'answered' : ''} ${i === currentIndex ? 'active' : ''}`;
+                div.innerText = i + 1;
+                div.onclick = () => { currentIndex = i; renderQuestion(); };
+                grid.appendChild(div);
+            });
+        }
+
+        function renderQuestion() {
+            const data = quizData[currentIndex];
+            document.getElementById('qText').innerText = data.q;
+            document.getElementById('qProgress').innerText = `Question ${currentIndex + 1} of ${quizData.length}`;
+            
+            const optCont = document.getElementById('options');
+            optCont.innerHTML = '';
+            
+            data.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn ${userAnswers[currentIndex] === i ? 'selected' : ''}`;
+                btn.innerText = `${String.fromCharCode(65 + i)}. ${opt}`;
+                btn.onclick = () => { 
+                    userAnswers[currentIndex] = i; 
+                    saveProgress();
+                    renderQuestion(); 
+                    renderGrid(); 
+                };
+                optCont.appendChild(btn);
+            });
+            
+            document.getElementById('nextBtn').innerText = currentIndex === quizData.length - 1 ? "Submit Exam" : "Next Question";
+            renderGrid();
+        }
+
+        function saveProgress() {
+            localStorage.setItem('learnease_save', JSON.stringify({
+                id: student.id,
+                answers: userAnswers
+            }));
+        }
+
+        function nextQ() {
+            if(currentIndex < quizData.length - 1) { 
+                currentIndex++; 
+                renderQuestion(); 
+            } else { 
+                if(confirm("Are you sure you want to finish the exam?")) finishExam(); 
+            }
+        }
+
+        function prevQ() { 
+            if(currentIndex > 0) { 
+                currentIndex--; 
+                renderQuestion(); 
+            } 
+        }
+
+        function finishExam() {
+            clearInterval(timerInterval);
+            let score = 0;
+            quizData.forEach((q, i) => { if(userAnswers[i] === q.correct) score++; });
+            
+            const percent = Math.round((score / quizData.length) * 100);
+            
+            document.getElementById('examPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+            document.getElementById('scoreCircle').innerText = percent + "%";
+            document.getElementById('resultMsg').innerHTML = `<strong>${student.name} (${student.id})</strong><br>Assessment complete. You answered ${score} out of ${quizData.length} questions correctly.`;
+            
+            localStorage.removeItem('learnease_save'); // Clear progress on completion
+        }
+
+        function downloadReport() {
+            const score = document.getElementById('scoreCircle').innerText;
+            const content = `LEARNEASE EXAM REPORT\n====================\nName: ${student.name}\nID: ${student.id}\nScore: ${score}\nDate: ${new Date().toLocaleString()}\n====================`;
+            const blob = new Blob([content], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `LearnEase_Report_${student.name.replace(/\s+/g, '_')}.txt`;
+            a.click();
+        }
+
+        // --- ADMIN CONTROLS ---
+        document.addEventListener('keydown', e => {
+            if(e.ctrlKey && e.shiftKey && e.key === 'A') {
+                document.getElementById('adminPage').classList.remove('hidden');
+                document.getElementById('adminJSON').value = JSON.stringify(quizData, null, 2);
+            }
+        });
+
+        function saveAdmin() {
+            try {
+                const newData = JSON.parse(document.getElementById('adminJSON').value);
+                quizData = newData;
+                userAnswers = new Array(quizData.length).fill(null);
+                currentIndex = 0;
+                alert("Question bank updated successfully!");
+                closeAdmin();
+                if(!document.getElementById('examPage').classList.contains('hidden')) {
+                    renderQuestion();
+                    renderGrid();
+                }
+            } catch(e) { 
+                alert("Invalid JSON format. Please check your commas and brackets."); 
+            }
+        }
+
+        function closeAdmin() { 
+            document.getElementById('adminPage').classList.add('hidden'); 
+        }
+    </script>
+</body>
+</html>
