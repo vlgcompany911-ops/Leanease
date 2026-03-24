@@ -3,212 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnEase - Professional CBT Portal</title>
+    <title>LearnEase Pro - Ultimate Academic Edition</title>
     <link rel="icon" type="image/jpeg" href="logo.jpg">
     <style>
-        :root {
-            --primary: #2563eb; --secondary: #64748b; --success: #22c55e;
-            --bg-light: #f8fafc; --text-dark: #1e293b; --white: #ffffff;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); margin: 0; color: var(--text-dark); overflow-x: hidden; }
+        :root { --primary: #2563eb; --secondary: #64748b; --success: #22c55e; --gold: #fbbf24; --bg: #f8fafc; --error: #ef4444; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #1e293b; overflow: hidden; }
         .hidden { display: none !important; }
-        .btn { padding: 0.8rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; display: inline-block; text-align: center; }
-        .primary { background: var(--primary); color: white; }
+        
+        /* Overlays */
+        .overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; overflow-y: auto; }
+        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; margin: auto; }
+        
+        /* Branding */
+        .brand-logo { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--primary); margin-bottom: 10px; object-fit: cover; }
+        
+        /* Form Elements */
+        input, select { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; }
+        .btn { padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .primary { background: var(--primary); color: white; width: 100%; }
         .secondary { background: var(--secondary); color: white; }
-        .overlay { position: fixed; inset: 0; background: var(--bg-light); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
-        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; width: 100%; max-width: 400px; }
-        .brand-logo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary); margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+        .break-btn { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+        /* Main Interface */
         .cbt-container { display: flex; flex-direction: column; height: 100vh; }
-        header { background: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; }
-        .timer-box { background: #fee2e2; color: #ef4444; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: bold; }
-        main { display: grid; grid-template-columns: 280px 1fr; flex-grow: 1; overflow: hidden; }
+        header { background: white; padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; }
+        main { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; overflow: hidden; }
+        
+        /* Navigation Sidebar */
         .q-sidebar { background: white; border-right: 1px solid #e2e8f0; padding: 1.5rem; overflow-y: auto; }
-        .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 1rem; }
-        .q-num { height: 45px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-weight: 600; }
-        .q-num.active { background: var(--primary); color: white; }
-        .q-num.answered { background: var(--success); color: white; }
-        .q-display { padding: 3rem 5%; overflow-y: auto; max-width: 1000px; margin: 0 auto; width: 100%; }
-        .options-container { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; }
-        .option-btn { padding: 1.2rem; text-align: left; background: white; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; }
+        .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .q-num { height: 40px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.85rem; }
+        .q-num.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .q-num.answered { background: var(--success); color: white; border-color: var(--success); }
+
+        /* Question Area */
+        .q-display { padding: 2rem 5%; overflow-y: auto; }
+        .option-btn { width: 100%; padding: 15px; margin: 8px 0; text-align: left; background: white; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; font-size: 1rem; }
         .option-btn.selected { border-color: var(--primary); background: #eff6ff; }
-        .controls { display: flex; justify-content: space-between; margin-top: 3rem; border-top: 1px solid #e2e8f0; padding-top: 2rem; }
-        .admin-panel { position: fixed; inset: 0; background: rgba(15,23,42,0.95); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .admin-card { background: white; padding: 2rem; border-radius: 15px; width: 100%; max-width: 600px; }
-        textarea { width: 100%; height: 250px; margin: 10px 0; font-family: monospace; padding: 10px; border: 1px solid #ddd; }
-        .score-circle { width: 140px; height: 140px; border: 10px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 2rem auto; font-size: 2.5rem; font-weight: 800; color: var(--primary); }
-        @media (max-width: 768px) { main { grid-template-columns: 1fr; } .q-sidebar { display: none; } }
+        .option-btn.correct-reveal { background: #dcfce7; border-color: var(--success); }
+        .option-btn.wrong-reveal { background: #fee2e2; border-color: var(--error); }
+
+        /* Micro AI Sidebar */
+        .ai-sidebar { background: #f1f5f9; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 15px; }
+        .ai-chat-box { flex-grow: 1; background: white; border-radius: 12px; padding: 12px; overflow-y: auto; font-size: 0.85rem; border: 1px solid #cbd5e1; margin-bottom: 10px; }
+        .ai-bubble { background: #e0f2fe; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--primary); line-height: 1.4; }
+        
+        .streak-tag { background: #fff7ed; color: #c2410c; padding: 5px 12px; border-radius: 20px; font-weight: bold; border: 1px solid #fdba74; font-size: 0.85rem; }
+        
+        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .q-sidebar, .ai-sidebar { display: none; } }
     </style>
 </head>
 <body>
 
     <div id="loginPage" class="overlay">
         <div class="card">
-            <img src="logo.jpg" alt="LearnEase Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/100?text=Owl'">
-            <h1 style="color:var(--primary); margin:0; font-size: 2.2rem;">LearnEase</h1>
-            <p style="color:var(--secondary); margin-bottom: 20px;">Secure Examination Portal</p>
-            <input type="text" id="studentName" placeholder="Full Name">
-            <input type="text" id="studentID" placeholder="Student ID">
-            <button class="btn primary" style="width:100%; margin-top: 10px;" onclick="startExam()">Launch Exam</button>
+            <img src="logo.jpg" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/80?text=Owl'">
+            <h2 style="margin:0">LearnEase Pro</h2>
+            <p style="font-size: 0.8rem; color: var(--secondary); margin-bottom: 15px;">Academic Portal v10.0</p>
+            
+            <input type="text" id="sName" placeholder="Full Name">
+            <input type="text" id="sUni" placeholder="University (e.g. UNILAG)">
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="sDept" placeholder="Department" style="flex: 2;">
+                <select id="sLevel" style="flex: 1;">
+                    <option value="100">100L</option>
+                    <option value="200">200L</option>
+                    <option value="300">300L</option>
+                    <option value="400">400L</option>
+                    <option value="500">500L</option>
+                    <option value="700">700L</option>
+                </select>
             </div>
+
+            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px;">
+                <label style="font-size: 0.8rem; flex: 1; text-align: left;">Timer (Mins):</label>
+                <input type="number" id="customMin" value="30" style="flex: 1;">
+                <select id="modeSelect" style="flex: 2;">
+                    <option value="exam">🏆 Exam Mode</option>
+                    <option value="practice">📝 Practice Mode</option>
+                    <option value="study">📖 Study Mode</option>
+                </select>
+            </div>
+            
+            <button class="btn primary" onclick="startApp()">Enter Session</button>
+        </div>
     </div>
 
-    <div id="examPage" class="cbt-container hidden">
+    <div id="breakPage" class="overlay hidden" style="background:rgba(15, 23, 42, 0.96)">
+        <div class="card">
+            <span style="font-size: 3rem;">☕</span>
+            <h2>Break in Progress</h2>
+            <p>Your exam is paused. Recommended rest: 30 mins.</p>
+            <div id="breakTimer" style="font-size: 2.5rem; font-weight: bold; color: var(--primary); margin: 20px 0;">30:00</div>
+            <button class="btn primary" onclick="toggleBreak()">Resume Now</button>
+        </div>
+    </div>
+
+    <div id="appPage" class="cbt-container hidden">
         <header>
-            <div><strong style="color:var(--primary)">LearnEase</strong> | <span id="displaySubject">General Assessment</span></div>
-            <div id="timer" class="timer-box">10:00</div>
+            <div id="studentHeader" style="line-height: 1.2;"></div>
+            <div id="timer" style="font-weight:bold; color: var(--error); font-size: 1.4rem;">00:00</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div id="streakBox" class="streak-tag">🔥 Streak: 0</div>
+                <button class="btn break-btn" onclick="toggleBreak()">Break</button>
+            </div>
         </header>
         <main>
             <aside class="q-sidebar">
-                <h3 style="margin-top:0">Navigator</h3>
+                <h4 style="margin-top:0">Navigator</h4>
                 <div class="q-grid" id="qGrid"></div>
             </aside>
+
             <section class="q-display">
-                <div id="qProgress" style="font-weight: bold; color: var(--secondary);">Question 1 of 0</div>
-                <h2 id="qText">Loading...</h2>
-                <div id="options" class="options-container"></div>
-                <div class="controls">
-                    <button class="btn secondary" onclick="prevQ()">Previous</button>
-                    <button class="btn primary" onclick="nextQ()" id="nextBtn">Next Question</button>
+                <h3 id="qText">Initializing Engineering Modules...</h3>
+                <div id="options"></div>
+                <div style="margin-top:40px; display:flex; justify-content:space-between; border-top: 1px solid #eee; padding-top: 20px;">
+                    <button class="btn secondary" onclick="changeQ(-1)">Previous</button>
+                    <button class="btn primary" style="width: auto;" onclick="changeQ(1)" id="nextBtn">Next Question</button>
                 </div>
             </section>
+
+            <aside class="ai-sidebar">
+                <h4 style="margin:0 0 10px 0; display: flex; align-items: center; gap: 8px;">
+                    <span>🤖 Micro AI</span>
+                    <small style="font-weight: normal; color: var(--success);">Online</small>
+                </h4>
+                <div class="ai-chat-box" id="aiChat"></div>
+                <div style="display:flex; gap: 5px;">
+                    <input type="text" id="aiInput" placeholder="Ask Micro AI..." onkeydown="if(event.key==='Enter') askMicro()">
+                    <button class="btn primary" style="width: 50px; padding: 0;" onclick="askMicro()">➜</button>
+                </div>
+            </aside>
         </main>
-    </div>
-
-    <div id="resultPage" class="overlay hidden">
-        <div class="card">
-            <h2>Exam Summary</h2>
-            <div class="score-circle" id="scoreCircle">0%</div>
-            <p id="resultMsg"></p>
-            <button class="btn secondary" onclick="downloadReport()">Save Report</button>
-            <button class="btn primary" onclick="location.reload()">Exit</button>
-        </div>
-    </div>
-
-    <div id="adminPage" class="admin-panel hidden">
-        <div class="admin-card">
-            <h2>Admin Control Center</h2>
-            <textarea id="adminJSON"></textarea>
-            <div style="display:flex; gap:10px; margin-top:15px;">
-                <button class="btn primary" onclick="saveAdmin()">Apply Changes</button>
-                <button class="btn secondary" onclick="closeAdmin()">Discard</button>
-            </div>
-        </div>
     </div>
 
     <script>
         let quizData = [
-            { q: "What is 2 + 2?", options: ["3", "4", "5", "6"], correct: 1 }
+            {q: "What is the standard unit of Power?", options: ["Joule", "Watt", "Newton", "Pascal"], correct: 1},
+            {q: "In Fluid Mechanics, what does a Reynolds number > 4000 indicate?", options: ["Laminar Flow", "Stationary Flow", "Turbulent Flow", "Sonic Flow"], correct: 2}
         ];
+        let currentIdx = 0, answers = [], mode = 'exam', timeLeft = 0, breakLeft = 1800, isPaused = false, student = {};
 
-        let currentIndex = 0;
-        let userAnswers = new Array(quizData.length).fill(null);
-        let student = { name: "", id: "" };
-        let timeLeft = 600;
-        let timerInterval;
+        function startApp() {
+            const name = document.getElementById('sName').value;
+            const uni = document.getElementById('sUni').value;
+            const dept = document.getElementById('sDept').value;
+            const level = document.getElementById('sLevel').value;
+            const mins = document.getElementById('customMin').value || 30;
 
-        function startExam() {
-            const name = document.getElementById('studentName').value;
-            const id = document.getElementById('studentID').value;
-            if(!name || !id) return alert("Enter Name and ID");
-            student = { name, id };
+            if(!name || !uni || !dept) return alert("Please complete your academic profile!");
+            
+            student = { name, uni, dept, level };
+            timeLeft = mins * 60;
+            mode = document.getElementById('modeSelect').value;
+            answers = new Array(quizData.length).fill(null);
+
+            // Streak Logic
+            let streak = parseInt(localStorage.getItem('le_streak')) || 0;
+            let lastDate = localStorage.getItem('le_date');
+            let today = new Date().toDateString();
+            if(lastDate !== today) {
+                streak = (lastDate === new Date(Date.now()-86400000).toDateString()) ? streak + 1 : 1;
+                localStorage.setItem('le_streak', streak);
+                localStorage.setItem('le_date', today);
+            }
+
             document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('examPage').classList.remove('hidden');
-            initExam();
+            document.getElementById('appPage').classList.remove('hidden');
+            
+            document.getElementById('studentHeader').innerHTML = `<strong>${name}</strong> (${level}L)<br><small>${uni} | ${dept}</small>`;
+            document.getElementById('streakBox').innerHTML = `🔥 Streak: ${streak} Days ${streak >= 7 ? '🥇' : ''}`;
+            
+            const aiGreet = level === "700" ? `Welcome, Researcher. Micro AI is ready for advanced 700L analysis.` : `Hi ${name}! I'm ready to help with your ${level}L engineering courses.`;
+            document.getElementById('aiChat').innerHTML = `<div class="ai-bubble">${aiGreet}</div>`;
+            
+            renderQ();
+            if(mode !== 'study') setInterval(runTimer, 1000);
+            else document.getElementById('timer').innerText = "∞";
         }
 
-        function initExam() { renderGrid(); renderQuestion(); startTimer(); }
+        function runTimer() {
+            if(!isPaused) {
+                if(timeLeft > 0) {
+                    timeLeft--;
+                    updateTimeDisplay('timer', timeLeft);
+                } else { location.reload(); }
+            } else {
+                if(breakLeft > 0) {
+                    breakLeft--;
+                    updateTimeDisplay('breakTimer', breakLeft);
+                }
+            }
+        }
 
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                let mins = Math.floor(timeLeft / 60);
-                let secs = timeLeft % 60;
-                document.getElementById('timer').innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-                if(timeLeft <= 0) { clearInterval(timerInterval); finishExam(); }
-            }, 1000);
+        function updateTimeDisplay(id, seconds) {
+            let m = Math.floor(seconds/60), s = seconds%60;
+            document.getElementById(id).innerText = `${m}:${s<10?'0':''}${s}`;
+        }
+
+        function toggleBreak() {
+            isPaused = !isPaused;
+            document.getElementById('breakPage').classList.toggle('hidden');
+            if(isPaused) breakLeft = 1800; // Reset to 30 mins
+        }
+
+        function renderQ() {
+            const q = quizData[currentIdx];
+            document.getElementById('qText').innerText = q.q;
+            const optDiv = document.getElementById('options'); optDiv.innerHTML = '';
+            
+            q.options.forEach((opt, i) => {
+                const b = document.createElement('button');
+                b.className = `option-btn ${answers[currentIdx] === i ? 'selected' : ''}`;
+                
+                if((mode === 'study' || mode === 'practice') && answers[currentIdx] !== null) {
+                    if(i === q.correct) b.classList.add('correct-reveal');
+                    else if(i === answers[currentIdx]) b.classList.add('wrong-reveal');
+                }
+
+                b.innerText = opt;
+                b.onclick = () => { 
+                    if(answers[currentIdx] === null || mode === 'exam') {
+                        answers[currentIdx] = i; 
+                        renderQ(); renderGrid(); 
+                    } 
+                };
+                optDiv.appendChild(b);
+            });
+            renderGrid();
         }
 
         function renderGrid() {
-            const grid = document.getElementById('qGrid');
-            grid.innerHTML = '';
+            const g = document.getElementById('qGrid'); g.innerHTML = '';
             quizData.forEach((_, i) => {
-                const div = document.createElement('div');
-                div.className = `q-num ${userAnswers[i] !== null ? 'answered' : ''} ${i === currentIndex ? 'active' : ''}`;
-                div.innerText = i + 1;
-                div.onclick = () => { currentIndex = i; renderQuestion(); };
-                grid.appendChild(div);
+                const d = document.createElement('div');
+                d.className = `q-num ${answers[i]!==null?'answered':''} ${i===currentIdx?'active':''}`;
+                d.innerText = i+1;
+                d.onclick = () => { currentIdx = i; renderQ(); };
+                g.appendChild(d);
             });
         }
 
-        function renderQuestion() {
-            const data = quizData[currentIndex];
-            document.getElementById('qText').innerText = data.q;
-            document.getElementById('qProgress').innerText = `Question ${currentIndex + 1} of ${quizData.length}`;
-            const optCont = document.getElementById('options');
-            optCont.innerHTML = '';
-            data.options.forEach((opt, i) => {
-                const btn = document.createElement('button');
-                btn.className = `option-btn ${userAnswers[currentIndex] === i ? 'selected' : ''}`;
-                btn.innerText = opt;
-                btn.onclick = () => { userAnswers[currentIndex] = i; renderQuestion(); renderGrid(); };
-                optCont.appendChild(btn);
-            });
-            document.getElementById('nextBtn').innerText = currentIndex === quizData.length - 1 ? "Submit" : "Next";
+        function askMicro() {
+            const input = document.getElementById('aiInput');
+            const chat = document.getElementById('aiChat');
+            if(!input.value) return;
+
+            chat.innerHTML += `<div style="text-align:right; margin-bottom:8px; font-size:0.8rem;"><strong>You:</strong> ${input.value}</div>`;
+            
+            setTimeout(() => {
+                let resp = `As a ${student.level}L student at ${student.uni}, you should analyze this using the principles of ${student.dept}. Focus on the core formulas!`;
+                chat.innerHTML += `<div class="ai-bubble"><strong>Micro AI:</strong> ${resp}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 600);
+            input.value = '';
         }
 
-        function nextQ() {
-            if(currentIndex < quizData.length - 1) { currentIndex++; renderQuestion(); }
-            else { if(confirm("Submit?")) finishExam(); }
+        function changeQ(dir) {
+            let newIdx = currentIdx + dir;
+            if(newIdx >= 0 && newIdx < quizData.length) { currentIdx = newIdx; renderQ(); }
+            else if(newIdx >= quizData.length) { if(confirm("Submit Exam?")) location.reload(); }
         }
 
-        function prevQ() { if(currentIndex > 0) { currentIndex--; renderQuestion(); } }
-
-        function finishExam() {
-            clearInterval(timerInterval);
-            let score = 0;
-            quizData.forEach((q, i) => { if(userAnswers[i] === q.correct) score++; });
-            const percent = Math.round((score / quizData.length) * 100);
-            document.getElementById('examPage').classList.add('hidden');
-            document.getElementById('resultPage').classList.remove('hidden');
-            document.getElementById('scoreCircle').innerText = percent + "%";
-            document.getElementById('resultMsg').innerText = `${student.name}, you scored ${score}/${quizData.length}.`;
-        }
-
-        function downloadReport() {
-            const content = `Report: ${student.name}\nScore: ${document.getElementById('scoreCircle').innerText}`;
-            const blob = new Blob([content], {type: 'text/plain'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Report_${student.name}.txt`;
-            a.click();
-        }
-
-        // --- SECRET ADMIN LOGIC ---
+        // ADMIN ACCESS: Press Ctrl + Shift + A | Password: 911
         document.addEventListener('keydown', e => {
             if(e.ctrlKey && e.shiftKey && e.key === 'A') {
-                const pw = prompt("Admin Password:");
-                if(pw === '911') { // CHANGE YOUR PASSWORD HERE
-                    document.getElementById('adminPage').classList.remove('hidden');
-                    document.getElementById('adminJSON').value = JSON.stringify(quizData, null, 2);
-                } else {
-                    alert("Access Denied");
+                if(prompt("Admin Pass:") === '911') {
+                    const data = prompt("Paste JSON Question Bank:");
+                    if(data) { 
+                        quizData = JSON.parse(data); 
+                        answers = new Array(quizData.length).fill(null); 
+                        currentIdx = 0; renderQ(); 
+                    }
                 }
             }
         });
-
-        function saveAdmin() {
-            try {
-                quizData = JSON.parse(document.getElementById('adminJSON').value);
-                userAnswers = new Array(quizData.length).fill(null);
-                currentIndex = 0;
-                alert("Updated!");
-                closeAdmin();
-                renderQuestion();
-            } catch(e) { alert("Invalid JSON"); }
-        }
-
-        function closeAdmin() { document.getElementById('adminPage').classList.add('hidden'); }
     </script>
 </body>
 </html>
