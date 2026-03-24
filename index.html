@@ -3,232 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnEase Pro - Ultimate Academic Edition</title>
+    <title>LearnEase Pro - NUC Level Edition</title>
     <link rel="icon" type="image/jpeg" href="logo.jpg">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --primary: #2563eb; --secondary: #64748b; --success: #22c55e; --gold: #fbbf24; --bg: #f8fafc; --error: #ef4444; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: #1e293b; overflow: hidden; }
+        :root { --primary: #2563eb; --secondary: #64748b; --success: #10b981; --error: #ef4444; --bg: #f1f5f9; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
         .hidden { display: none !important; }
-        
-        /* Overlays */
         .overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; overflow-y: auto; }
-        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; margin: auto; }
-        
-        /* Branding */
-        .brand-logo { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--primary); margin-bottom: 10px; object-fit: cover; }
-        
-        /* Form Elements */
-        input, select { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; }
-        .btn { padding: 12px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .primary { background: var(--primary); color: white; width: 100%; }
-        .secondary { background: var(--secondary); color: white; }
-        .break-btn { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
-
-        /* Main Interface */
-        .cbt-container { display: flex; flex-direction: column; height: 100vh; }
-        header { background: white; padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; }
-        main { display: grid; grid-template-columns: 240px 1fr 300px; flex-grow: 1; overflow: hidden; }
-        
-        /* Navigation Sidebar */
-        .q-sidebar { background: white; border-right: 1px solid #e2e8f0; padding: 1.5rem; overflow-y: auto; }
-        .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .q-num { height: 40px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-weight: bold; font-size: 0.85rem; }
-        .q-num.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .q-num.answered { background: var(--success); color: white; border-color: var(--success); }
-
-        /* Question Area */
-        .q-display { padding: 2rem 5%; overflow-y: auto; }
-        .option-btn { width: 100%; padding: 15px; margin: 8px 0; text-align: left; background: white; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; font-size: 1rem; }
-        .option-btn.selected { border-color: var(--primary); background: #eff6ff; }
-        .option-btn.correct-reveal { background: #dcfce7; border-color: var(--success); }
-        .option-btn.wrong-reveal { background: #fee2e2; border-color: var(--error); }
-
-        /* Micro AI Sidebar */
-        .ai-sidebar { background: #f1f5f9; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 15px; }
-        .ai-chat-box { flex-grow: 1; background: white; border-radius: 12px; padding: 12px; overflow-y: auto; font-size: 0.85rem; border: 1px solid #cbd5e1; margin-bottom: 10px; }
-        .ai-bubble { background: #e0f2fe; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--primary); line-height: 1.4; }
-        
-        .streak-tag { background: #fff7ed; color: #c2410c; padding: 5px 12px; border-radius: 20px; font-weight: bold; border: 1px solid #fdba74; font-size: 0.85rem; }
-        
-        @media (max-width: 1000px) { main { grid-template-columns: 1fr; } .q-sidebar, .ai-sidebar { display: none; } }
+        .card { background: white; padding: 2.5rem; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; }
+        .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--primary); margin-bottom: 15px; object-fit: cover; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; }
+        .btn { padding: 14px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; width: 100%; transition: 0.3s; }
+        .btn-primary { background: var(--primary); color: white; margin-top: 10px; }
+        header { background: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        .db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .db-card { padding: 30px 20px; border-radius: 20px; color: white; cursor: pointer; transition: 0.3s; }
+        .bg-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .bg-purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
+        .bg-orange { background: linear-gradient(135deg, #f97316, #c2410c); }
+        .bg-green { background: linear-gradient(135deg, #10b981, #047857); }
+        main { display: grid; grid-template-columns: 240px 1fr 300px; height: calc(100vh - 75px); }
+        .ai-sidebar { background: #f8fafc; padding: 20px; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+        .ai-chat { flex-grow: 1; background: white; border-radius: 15px; padding: 15px; border: 1px solid #e2e8f0; overflow-y: auto; font-size: 0.9rem; }
+        .q-num { height: 40px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
+        .q-num.active { background: var(--primary); color: white; }
+        .q-num.answered { background: var(--success); color: white; }
     </style>
 </head>
 <body>
 
     <div id="loginPage" class="overlay">
         <div class="card">
-            <img src="logo.jpg" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/80?text=Owl'">
-            <h2 style="margin:0">LearnEase Pro</h2>
-            <p style="font-size: 0.8rem; color: var(--secondary); margin-bottom: 15px;">Academic Portal v10.0</p>
-            
+            <img src="logo.jpg" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/90'">
+            <h2>LearnEase Pro</h2>
             <input type="text" id="sName" placeholder="Full Name">
-            <input type="text" id="sUni" placeholder="University (e.g. UNILAG)">
-            
-            <div style="display: flex; gap: 8px;">
-                <input type="text" id="sDept" placeholder="Department" style="flex: 2;">
-                <select id="sLevel" style="flex: 1;">
-                    <option value="100">100L</option>
-                    <option value="200">200L</option>
-                    <option value="300">300L</option>
-                    <option value="400">400L</option>
-                    <option value="500">500L</option>
-                    <option value="700">700L</option>
-                </select>
-            </div>
-
-            <div style="display: flex; gap: 8px; align-items: center; margin-top: 5px;">
-                <label style="font-size: 0.8rem; flex: 1; text-align: left;">Timer (Mins):</label>
-                <input type="number" id="customMin" value="30" style="flex: 1;">
-                <select id="modeSelect" style="flex: 2;">
-                    <option value="exam">🏆 Exam Mode</option>
-                    <option value="practice">📝 Practice Mode</option>
-                    <option value="study">📖 Study Mode</option>
-                </select>
-            </div>
-            
-            <button class="btn primary" onclick="startApp()">Enter Session</button>
+            <input type="text" id="sUni" placeholder="University">
+            <select id="sLevel">
+                <option value="" disabled selected>Select Level</option>
+                <option value="100">100 Level</option>
+                <option value="200">200 Level</option>
+                <option value="300">300 Level</option>
+                <option value="400">400 Level</option>
+                <option value="500">500 Level</option>
+                <option value="600">600 Level</option>
+                <option value="700">700 Level (PG)</option>
+            </select>
+            <input type="text" id="sDept" placeholder="Department">
+            <button class="btn btn-primary" onclick="login()">Enter Dashboard</button>
         </div>
     </div>
 
-    <div id="breakPage" class="overlay hidden" style="background:rgba(15, 23, 42, 0.96)">
-        <div class="card">
-            <span style="font-size: 3rem;">☕</span>
-            <h2>Break in Progress</h2>
-            <p>Your exam is paused. Recommended rest: 30 mins.</p>
-            <div id="breakTimer" style="font-size: 2.5rem; font-weight: bold; color: var(--primary); margin: 20px 0;">30:00</div>
-            <button class="btn primary" onclick="toggleBreak()">Resume Now</button>
-        </div>
-    </div>
-
-    <div id="appPage" class="cbt-container hidden">
+    <div id="dashboardPage" class="hidden">
         <header>
-            <div id="studentHeader" style="line-height: 1.2;"></div>
-            <div id="timer" style="font-weight:bold; color: var(--error); font-size: 1.4rem;">00:00</div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <div id="streakBox" class="streak-tag">🔥 Streak: 0</div>
-                <button class="btn break-btn" onclick="toggleBreak()">Break</button>
+            <div id="welcomeTxt"><strong>Welcome</strong></div>
+            <div style="font-weight:bold; color:#c2410c;" id="streakTxt">🔥 Streak: 1 Day</div>
+            <button class="btn" style="width:auto; color:red; background:none;" onclick="location.reload()">Logout</button>
+        </header>
+        <div style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
+            <h3>Academic Hub</h3>
+            <div class="db-grid">
+                <div class="db-card bg-blue" onclick="startSession('exam')"><h4>🏆 Exam</h4><p>Strict Time</p></div>
+                <div class="db-card bg-purple" onclick="startSession('practice')"><h4>📝 Practice</h4><p>Feedback On</p></div>
+                <div class="db-card bg-orange" onclick="startSession('study')"><h4>📖 Study</h4><p>Untimed</p></div>
+                <div class="db-card bg-green" onclick="showHistory()"><h4>📊 History</h4><p>Past Results</p></div>
             </div>
+        </div>
+    </div>
+
+    <div id="appPage" class="hidden">
+        <header>
+            <button class="btn" style="width:auto;" onclick="exitToDashboard()">🏠 Home</button>
+            <div id="timer" style="font-weight:bold; font-size:1.4rem; color:var(--error);">30:00</div>
+            <div id="modeLabel" style="font-weight:bold; color:var(--primary);">EXAM</div>
         </header>
         <main>
-            <aside class="q-sidebar">
-                <h4 style="margin-top:0">Navigator</h4>
-                <div class="q-grid" id="qGrid"></div>
+            <aside style="background:white; border-right:1px solid #e2e8f0; padding:20px; overflow-y:auto;">
+                <div id="qGrid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;"></div>
             </aside>
-
-            <section class="q-display">
-                <h3 id="qText">Initializing Engineering Modules...</h3>
-                <div id="options"></div>
-                <div style="margin-top:40px; display:flex; justify-content:space-between; border-top: 1px solid #eee; padding-top: 20px;">
-                    <button class="btn secondary" onclick="changeQ(-1)">Previous</button>
-                    <button class="btn primary" style="width: auto;" onclick="changeQ(1)" id="nextBtn">Next Question</button>
+            <section style="padding:40px; overflow-y:auto; background:white;">
+                <h3 id="qText">Loading...</h3>
+                <div id="options" style="display:flex; flex-direction:column; gap:10px; margin:20px 0;"></div>
+                <div style="display:flex; justify-content:space-between; margin-top:30px;">
+                    <button class="btn" style="width:auto; background:#64748b; color:white;" onclick="changeQ(-1)">Previous</button>
+                    <button class="btn btn-primary" style="width:auto;" onclick="changeQ(1)">Next / Submit</button>
                 </div>
             </section>
-
             <aside class="ai-sidebar">
-                <h4 style="margin:0 0 10px 0; display: flex; align-items: center; gap: 8px;">
-                    <span>🤖 Micro AI</span>
-                    <small style="font-weight: normal; color: var(--success);">Online</small>
-                </h4>
-                <div class="ai-chat-box" id="aiChat"></div>
-                <div style="display:flex; gap: 5px;">
-                    <input type="text" id="aiInput" placeholder="Ask Micro AI..." onkeydown="if(event.key==='Enter') askMicro()">
-                    <button class="btn primary" style="width: 50px; padding: 0;" onclick="askMicro()">➜</button>
-                </div>
+                <h4>🤖 Micro AI</h4>
+                <div id="aiChat" class="ai-chat"></div>
+                <input type="text" id="aiInput" placeholder="Ask AI..." onkeydown="if(event.key==='Enter') askAI()">
             </aside>
         </main>
     </div>
 
+    <div id="resultPage" class="overlay hidden">
+        <div class="card" id="pdfArea" style="max-width:550px;">
+            <h2 id="resHeader">Session Report</h2>
+            <div style="width:100%; max-width:250px; margin:auto;"><canvas id="resChart"></canvas></div>
+            <div id="resData" style="margin:20px 0; font-weight:bold; font-size:1.1rem;"></div>
+            <button class="btn btn-primary" onclick="downloadPDF()">📥 Download PDF Report</button>
+            <button class="btn" style="margin-top:10px; background:#e2e8f0;" onclick="exitToDashboard()">Back to Dashboard</button>
+        </div>
+    </div>
+
     <script>
-        let quizData = [
-            {q: "What is the standard unit of Power?", options: ["Joule", "Watt", "Newton", "Pascal"], correct: 1},
-            {q: "In Fluid Mechanics, what does a Reynolds number > 4000 indicate?", options: ["Laminar Flow", "Stationary Flow", "Turbulent Flow", "Sonic Flow"], correct: 2}
-        ];
-        let currentIdx = 0, answers = [], mode = 'exam', timeLeft = 0, breakLeft = 1800, isPaused = false, student = {};
+        let quizData = [{q:"Sample: Identify the core level of LearnEase?", options:["100L","700L","Any Level"], correct:2}];
+        let currentIdx = 0, answers = [], mode = 'exam', timeLeft = 1800, timer, student = {}, myChart;
 
-        function startApp() {
+        function login() {
             const name = document.getElementById('sName').value;
-            const uni = document.getElementById('sUni').value;
-            const dept = document.getElementById('sDept').value;
             const level = document.getElementById('sLevel').value;
-            const mins = document.getElementById('customMin').value || 30;
-
-            if(!name || !uni || !dept) return alert("Please complete your academic profile!");
-            
-            student = { name, uni, dept, level };
-            timeLeft = mins * 60;
-            mode = document.getElementById('modeSelect').value;
-            answers = new Array(quizData.length).fill(null);
-
-            // Streak Logic
-            let streak = parseInt(localStorage.getItem('le_streak')) || 0;
-            let lastDate = localStorage.getItem('le_date');
-            let today = new Date().toDateString();
-            if(lastDate !== today) {
-                streak = (lastDate === new Date(Date.now()-86400000).toDateString()) ? streak + 1 : 1;
-                localStorage.setItem('le_streak', streak);
-                localStorage.setItem('le_date', today);
-            }
-
+            if(!name || !level) return alert("Please fill Name and Level");
+            student = { name, uni: document.getElementById('sUni').value, level, dept: document.getElementById('sDept').value };
             document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            document.getElementById('welcomeTxt').innerHTML = `<strong>Hello, ${name} (${level}L)</strong>`;
+        }
+
+        function startSession(m) {
+            mode = m; currentIdx = 0; answers = new Array(quizData.length).fill(null);
+            document.getElementById('dashboardPage').classList.add('hidden');
             document.getElementById('appPage').classList.remove('hidden');
-            
-            document.getElementById('studentHeader').innerHTML = `<strong>${name}</strong> (${level}L)<br><small>${uni} | ${dept}</small>`;
-            document.getElementById('streakBox').innerHTML = `🔥 Streak: ${streak} Days ${streak >= 7 ? '🥇' : ''}`;
-            
-            const aiGreet = level === "700" ? `Welcome, Researcher. Micro AI is ready for advanced 700L analysis.` : `Hi ${name}! I'm ready to help with your ${level}L engineering courses.`;
-            document.getElementById('aiChat').innerHTML = `<div class="ai-bubble">${aiGreet}</div>`;
-            
             renderQ();
-            if(mode !== 'study') setInterval(runTimer, 1000);
+            if(mode !== 'study') { timeLeft = 1800; timer = setInterval(tick, 1000); }
             else document.getElementById('timer').innerText = "∞";
         }
 
-        function runTimer() {
-            if(!isPaused) {
-                if(timeLeft > 0) {
-                    timeLeft--;
-                    updateTimeDisplay('timer', timeLeft);
-                } else { location.reload(); }
-            } else {
-                if(breakLeft > 0) {
-                    breakLeft--;
-                    updateTimeDisplay('breakTimer', breakLeft);
-                }
-            }
-        }
-
-        function updateTimeDisplay(id, seconds) {
-            let m = Math.floor(seconds/60), s = seconds%60;
-            document.getElementById(id).innerText = `${m}:${s<10?'0':''}${s}`;
-        }
-
-        function toggleBreak() {
-            isPaused = !isPaused;
-            document.getElementById('breakPage').classList.toggle('hidden');
-            if(isPaused) breakLeft = 1800; // Reset to 30 mins
+        function tick() {
+            timeLeft--;
+            let m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(timeLeft <= 0) finalize();
         }
 
         function renderQ() {
             const q = quizData[currentIdx];
             document.getElementById('qText').innerText = q.q;
             const optDiv = document.getElementById('options'); optDiv.innerHTML = '';
-            
             q.options.forEach((opt, i) => {
                 const b = document.createElement('button');
-                b.className = `option-btn ${answers[currentIdx] === i ? 'selected' : ''}`;
-                
-                if((mode === 'study' || mode === 'practice') && answers[currentIdx] !== null) {
-                    if(i === q.correct) b.classList.add('correct-reveal');
-                    else if(i === answers[currentIdx]) b.classList.add('wrong-reveal');
-                }
-
+                b.style.cssText = `padding:15px; text-align:left; border-radius:12px; border:2px solid #e2e8f0; background:white; cursor:pointer; font-size:1rem;`;
+                if(answers[currentIdx] === i) b.style.borderColor = "var(--primary)";
                 b.innerText = opt;
-                b.onclick = () => { 
-                    if(answers[currentIdx] === null || mode === 'exam') {
-                        answers[currentIdx] = i; 
-                        renderQ(); renderGrid(); 
-                    } 
-                };
+                b.onclick = () => { answers[currentIdx] = i; renderQ(); renderGrid(); };
                 optDiv.appendChild(b);
             });
             renderGrid();
@@ -245,37 +165,67 @@
             });
         }
 
-        function askMicro() {
+        function changeQ(dir) {
+            currentIdx += dir;
+            if(currentIdx >= 0 && currentIdx < quizData.length) renderQ();
+            else if(currentIdx >= quizData.length) finalize();
+        }
+
+        function finalize() {
+            clearInterval(timer);
+            let c=0, w=0, s=0;
+            quizData.forEach((q, i) => {
+                if(answers[i] === null) s++;
+                else if(answers[i] === q.correct) c++;
+                else w++;
+            });
+            document.getElementById('appPage').classList.add('hidden');
+            document.getElementById('resultPage').classList.remove('hidden');
+            document.getElementById('resData').innerText = `Final Score: ${Math.round((c/quizData.length)*100)}%`;
+            
+            const ctx = document.getElementById('resChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'pie',
+                data: { labels:['Correct','Wrong','Skipped'], datasets:[{ data:[c,w,s], backgroundColor:['#10b981','#ef4444','#64748b'] }] }
+            });
+        }
+
+        async function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const element = document.getElementById('pdfArea');
+            const canvas = await html2canvas(element);
+            const imgData = canvas.toDataURL('image/png');
+            doc.text(`LearnEase Academic Report`, 10, 10);
+            doc.text(`Student: ${student.name} | Level: ${student.level}L`, 10, 20);
+            doc.addImage(imgData, 'PNG', 10, 30, 180, 160);
+            doc.save(`Result_${student.name}_${student.level}L.pdf`);
+        }
+
+        function askAI() {
             const input = document.getElementById('aiInput');
             const chat = document.getElementById('aiChat');
             if(!input.value) return;
-
-            chat.innerHTML += `<div style="text-align:right; margin-bottom:8px; font-size:0.8rem;"><strong>You:</strong> ${input.value}</div>`;
-            
+            chat.innerHTML += `<div style="text-align:right; margin-bottom:10px;"><b>You:</b> ${input.value}</div>`;
             setTimeout(() => {
-                let resp = `As a ${student.level}L student at ${student.uni}, you should analyze this using the principles of ${student.dept}. Focus on the core formulas!`;
-                chat.innerHTML += `<div class="ai-bubble"><strong>Micro AI:</strong> ${resp}</div>`;
+                const msg = student.level > 500 ? "As a postgraduate scholar, consider the advanced variables..." : "Focus on the basic formulas for your level!";
+                chat.innerHTML += `<div style="background:#e0f2fe; padding:8px; border-radius:10px; margin-bottom:10px;"><b>Micro AI:</b> ${msg}</div>`;
                 chat.scrollTop = chat.scrollHeight;
             }, 600);
             input.value = '';
         }
 
-        function changeQ(dir) {
-            let newIdx = currentIdx + dir;
-            if(newIdx >= 0 && newIdx < quizData.length) { currentIdx = newIdx; renderQ(); }
-            else if(newIdx >= quizData.length) { if(confirm("Submit Exam?")) location.reload(); }
+        function exitToDashboard() {
+            document.querySelectorAll('.overlay, .cbt-container').forEach(el => el.classList.add('hidden'));
+            document.getElementById('dashboardPage').classList.remove('hidden');
         }
 
-        // ADMIN ACCESS: Press Ctrl + Shift + A | Password: 911
         document.addEventListener('keydown', e => {
             if(e.ctrlKey && e.shiftKey && e.key === 'A') {
                 if(prompt("Admin Pass:") === '911') {
-                    const data = prompt("Paste JSON Question Bank:");
-                    if(data) { 
-                        quizData = JSON.parse(data); 
-                        answers = new Array(quizData.length).fill(null); 
-                        currentIdx = 0; renderQ(); 
-                    }
+                    const data = prompt("Paste Question JSON:");
+                    if(data) { quizData = JSON.parse(data); alert("Questions Updated!"); }
                 }
             }
         });
