@@ -3,232 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnEase Pro - NUC Level Edition</title>
+    <title>LearnEase Pro - Secure Session</title>
     <link rel="icon" type="image/jpeg" href="logo.jpg">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        :root { --primary: #2563eb; --secondary: #64748b; --success: #10b981; --error: #ef4444; --bg: #f1f5f9; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        :root { --primary: #2563eb; --secondary: #64748b; --success: #10b981; --error: #ef4444; --bg: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .hidden { display: none !important; }
-        .overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; overflow-y: auto; }
-        .card { background: white; padding: 2.5rem; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 480px; }
-        .brand-logo { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--primary); margin-bottom: 15px; object-fit: cover; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 1rem; }
-        .btn { padding: 14px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; width: 100%; transition: 0.3s; }
-        .btn-primary { background: var(--primary); color: white; margin-top: 10px; }
-        header { background: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
-        .db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
-        .db-card { padding: 30px 20px; border-radius: 20px; color: white; cursor: pointer; transition: 0.3s; }
-        .bg-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-        .bg-purple { background: linear-gradient(135deg, #a855f7, #7e22ce); }
-        .bg-orange { background: linear-gradient(135deg, #f97316, #c2410c); }
-        .bg-green { background: linear-gradient(135deg, #10b981, #047857); }
-        main { display: grid; grid-template-columns: 240px 1fr 300px; height: calc(100vh - 75px); }
-        .ai-sidebar { background: #f8fafc; padding: 20px; border-left: 1px solid #e2e8f0; display: flex; flex-direction: column; }
-        .ai-chat { flex-grow: 1; background: white; border-radius: 15px; padding: 15px; border: 1px solid #e2e8f0; overflow-y: auto; font-size: 0.9rem; }
-        .q-num { height: 40px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
-        .q-num.active { background: var(--primary); color: white; }
-        .q-num.answered { background: var(--success); color: white; }
+        
+        .auth-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9000; padding: 20px; }
+        .auth-card { background: white; padding: 2.5rem; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 12px; box-sizing: border-box; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        header { background: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; sticky: top; }
+        .user-pill { display: flex; align-items: center; gap: 10px; background: #f1f5f9; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+        .db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; padding: 20px; max-width: 1000px; margin: auto; }
+        .db-card { padding: 25px 15px; border-radius: 18px; color: white; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-    <div id="loginPage" class="overlay">
-        <div class="card">
-            <img src="logo.jpg" alt="Logo" class="brand-logo" onerror="this.src='https://via.placeholder.com/90'">
-            <h2>LearnEase Pro</h2>
-            <input type="text" id="sName" placeholder="Full Name">
-            <input type="text" id="sUni" placeholder="University">
-            <select id="sLevel">
-                <option value="" disabled selected>Select Level</option>
-                <option value="100">100 Level</option>
-                <option value="200">200 Level</option>
-                <option value="300">300 Level</option>
-                <option value="400">400 Level</option>
-                <option value="500">500 Level</option>
-                <option value="600">600 Level</option>
-                <option value="700">700 Level (PG)</option>
-            </select>
-            <input type="text" id="sDept" placeholder="Department">
-            <button class="btn btn-primary" onclick="login()">Enter Dashboard</button>
+    <div id="authLayer" class="auth-overlay">
+        <div class="auth-card">
+            <img src="logo.jpg" style="width:70px; border-radius:50%; margin-bottom:15px;" onerror="this.src='https://via.placeholder.com/70'">
+            <h3>Scholar Login</h3>
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="pass" placeholder="Password">
+            <button class="btn-primary" onclick="handleAuth()">Sign In</button>
+            <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 15px;">Sessions expire after 45 minutes of inactivity.</p>
         </div>
     </div>
 
     <div id="dashboardPage" class="hidden">
         <header>
-            <div id="welcomeTxt"><strong>Welcome</strong></div>
-            <div style="font-weight:bold; color:#c2410c;" id="streakTxt">🔥 Streak: 1 Day</div>
-            <button class="btn" style="width:auto; color:red; background:none;" onclick="location.reload()">Logout</button>
-        </header>
-        <div style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
-            <h3>Academic Hub</h3>
-            <div class="db-grid">
-                <div class="db-card bg-blue" onclick="startSession('exam')"><h4>🏆 Exam</h4><p>Strict Time</p></div>
-                <div class="db-card bg-purple" onclick="startSession('practice')"><h4>📝 Practice</h4><p>Feedback On</p></div>
-                <div class="db-card bg-orange" onclick="startSession('study')"><h4>📖 Study</h4><p>Untimed</p></div>
-                <div class="db-card bg-green" onclick="showHistory()"><h4>📊 History</h4><p>Past Results</p></div>
+            <div class="user-pill">
+                <span id="userInitial" style="background:var(--success); color:white; width:25px; height:25px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem;">V</span>
+                <span id="userNick">User</span>
             </div>
-        </div>
-    </div>
-
-    <div id="appPage" class="hidden">
-        <header>
-            <button class="btn" style="width:auto;" onclick="exitToDashboard()">🏠 Home</button>
-            <div id="timer" style="font-weight:bold; font-size:1.4rem; color:var(--error);">30:00</div>
-            <div id="modeLabel" style="font-weight:bold; color:var(--primary);">EXAM</div>
+            <div style="font-weight:bold; color:#c2410c;">🔥 Active Session</div>
+            <button onclick="signOut()" style="background:none; border:none; color:red; font-weight:bold; cursor:pointer;">Logout</button>
         </header>
-        <main>
-            <aside style="background:white; border-right:1px solid #e2e8f0; padding:20px; overflow-y:auto;">
-                <div id="qGrid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;"></div>
-            </aside>
-            <section style="padding:40px; overflow-y:auto; background:white;">
-                <h3 id="qText">Loading...</h3>
-                <div id="options" style="display:flex; flex-direction:column; gap:10px; margin:20px 0;"></div>
-                <div style="display:flex; justify-content:space-between; margin-top:30px;">
-                    <button class="btn" style="width:auto; background:#64748b; color:white;" onclick="changeQ(-1)">Previous</button>
-                    <button class="btn btn-primary" style="width:auto;" onclick="changeQ(1)">Next / Submit</button>
-                </div>
-            </section>
-            <aside class="ai-sidebar">
-                <h4>🤖 Micro AI</h4>
-                <div id="aiChat" class="ai-chat"></div>
-                <input type="text" id="aiInput" placeholder="Ask AI..." onkeydown="if(event.key==='Enter') askAI()">
-            </aside>
-        </main>
-    </div>
 
-    <div id="resultPage" class="overlay hidden">
-        <div class="card" id="pdfArea" style="max-width:550px;">
-            <h2 id="resHeader">Session Report</h2>
-            <div style="width:100%; max-width:250px; margin:auto;"><canvas id="resChart"></canvas></div>
-            <div id="resData" style="margin:20px 0; font-weight:bold; font-size:1.1rem;"></div>
-            <button class="btn btn-primary" onclick="downloadPDF()">📥 Download PDF Report</button>
-            <button class="btn" style="margin-top:10px; background:#e2e8f0;" onclick="exitToDashboard()">Back to Dashboard</button>
+        <div class="db-grid">
+            <div style="background:#3b82f6;" class="db-card"><h4>🏆 Exam</h4><p>Timed</p></div>
+            <div style="background:#a855f7;" class="db-card"><h4>📝 Practice</h4><p>Feedback</p></div>
+            <div style="background:#f97316;" class="db-card"><h4>📖 Study</h4><p>Untimed</p></div>
+            <div style="background:#10b981;" class="db-card"><h4>📊 History</h4><p>Results</p></div>
         </div>
     </div>
 
     <script>
-        let quizData = [{q:"Sample: Identify the core level of LearnEase?", options:["100L","700L","Any Level"], correct:2}];
-        let currentIdx = 0, answers = [], mode = 'exam', timeLeft = 1800, timer, student = {}, myChart;
-
-        function login() {
-            const name = document.getElementById('sName').value;
-            const level = document.getElementById('sLevel').value;
-            if(!name || !level) return alert("Please fill Name and Level");
-            student = { name, uni: document.getElementById('sUni').value, level, dept: document.getElementById('sDept').value };
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('dashboardPage').classList.remove('hidden');
-            document.getElementById('welcomeTxt').innerHTML = `<strong>Hello, ${name} (${level}L)</strong>`;
-        }
-
-        function startSession(m) {
-            mode = m; currentIdx = 0; answers = new Array(quizData.length).fill(null);
-            document.getElementById('dashboardPage').classList.add('hidden');
-            document.getElementById('appPage').classList.remove('hidden');
-            renderQ();
-            if(mode !== 'study') { timeLeft = 1800; timer = setInterval(tick, 1000); }
-            else document.getElementById('timer').innerText = "∞";
-        }
-
-        function tick() {
-            timeLeft--;
-            let m = Math.floor(timeLeft/60), s = timeLeft%60;
-            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
-            if(timeLeft <= 0) finalize();
-        }
-
-        function renderQ() {
-            const q = quizData[currentIdx];
-            document.getElementById('qText').innerText = q.q;
-            const optDiv = document.getElementById('options'); optDiv.innerHTML = '';
-            q.options.forEach((opt, i) => {
-                const b = document.createElement('button');
-                b.style.cssText = `padding:15px; text-align:left; border-radius:12px; border:2px solid #e2e8f0; background:white; cursor:pointer; font-size:1rem;`;
-                if(answers[currentIdx] === i) b.style.borderColor = "var(--primary)";
-                b.innerText = opt;
-                b.onclick = () => { answers[currentIdx] = i; renderQ(); renderGrid(); };
-                optDiv.appendChild(b);
-            });
-            renderGrid();
-        }
-
-        function renderGrid() {
-            const g = document.getElementById('qGrid'); g.innerHTML = '';
-            quizData.forEach((_, i) => {
-                const d = document.createElement('div');
-                d.className = `q-num ${answers[i]!==null?'answered':''} ${i===currentIdx?'active':''}`;
-                d.innerText = i+1;
-                d.onclick = () => { currentIdx = i; renderQ(); };
-                g.appendChild(d);
-            });
-        }
-
-        function changeQ(dir) {
-            currentIdx += dir;
-            if(currentIdx >= 0 && currentIdx < quizData.length) renderQ();
-            else if(currentIdx >= quizData.length) finalize();
-        }
-
-        function finalize() {
-            clearInterval(timer);
-            let c=0, w=0, s=0;
-            quizData.forEach((q, i) => {
-                if(answers[i] === null) s++;
-                else if(answers[i] === q.correct) c++;
-                else w++;
-            });
-            document.getElementById('appPage').classList.add('hidden');
-            document.getElementById('resultPage').classList.remove('hidden');
-            document.getElementById('resData').innerText = `Final Score: ${Math.round((c/quizData.length)*100)}%`;
-            
-            const ctx = document.getElementById('resChart').getContext('2d');
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'pie',
-                data: { labels:['Correct','Wrong','Skipped'], datasets:[{ data:[c,w,s], backgroundColor:['#10b981','#ef4444','#64748b'] }] }
-            });
-        }
-
-        async function downloadPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const element = document.getElementById('pdfArea');
-            const canvas = await html2canvas(element);
-            const imgData = canvas.toDataURL('image/png');
-            doc.text(`LearnEase Academic Report`, 10, 10);
-            doc.text(`Student: ${student.name} | Level: ${student.level}L`, 10, 20);
-            doc.addImage(imgData, 'PNG', 10, 30, 180, 160);
-            doc.save(`Result_${student.name}_${student.level}L.pdf`);
-        }
-
-        function askAI() {
-            const input = document.getElementById('aiInput');
-            const chat = document.getElementById('aiChat');
-            if(!input.value) return;
-            chat.innerHTML += `<div style="text-align:right; margin-bottom:10px;"><b>You:</b> ${input.value}</div>`;
-            setTimeout(() => {
-                const msg = student.level > 500 ? "As a postgraduate scholar, consider the advanced variables..." : "Focus on the basic formulas for your level!";
-                chat.innerHTML += `<div style="background:#e0f2fe; padding:8px; border-radius:10px; margin-bottom:10px;"><b>Micro AI:</b> ${msg}</div>`;
-                chat.scrollTop = chat.scrollHeight;
-            }, 600);
-            input.value = '';
-        }
-
-        function exitToDashboard() {
-            document.querySelectorAll('.overlay, .cbt-container').forEach(el => el.classList.add('hidden'));
-            document.getElementById('dashboardPage').classList.remove('hidden');
-        }
-
-        document.addEventListener('keydown', e => {
-            if(e.ctrlKey && e.shiftKey && e.key === 'A') {
-                if(prompt("Admin Pass:") === '911') {
-                    const data = prompt("Paste Question JSON:");
-                    if(data) { quizData = JSON.parse(data); alert("Questions Updated!"); }
+        // SESSION CHECK ON LOAD
+        window.onload = function() {
+            const session = JSON.parse(localStorage.getItem('le_session'));
+            if (session) {
+                const now = new Date().getTime();
+                const diffInMinutes = (now - session.loginTime) / (1000 * 60); 
+                
+                // 45 MINUTE LIMIT
+                if (diffInMinutes < 45) { 
+                    showDashboard(session.nick);
+                } else {
+                    alert("Session expired. Please log in again.");
+                    localStorage.removeItem('le_session'); 
                 }
             }
-        });
+        };
+
+        function handleAuth() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+
+            if (!email || pass.length < 6) return alert("Credentials required (Pass: 6+ chars)");
+
+            const nick = email.split('@')[0]; 
+            const sessionData = {
+                nick: nick,
+                email: email,
+                loginTime: new Date().getTime()
+            };
+
+            localStorage.setItem('le_session', JSON.stringify(sessionData));
+            showDashboard(nick);
+        }
+
+        function showDashboard(nickname) {
+            document.getElementById('authLayer').classList.add('hidden');
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            document.getElementById('userNick').innerText = nickname;
+            document.getElementById('userInitial').innerText = nickname.charAt(0).toUpperCase();
+        }
+
+        function signOut() {
+            localStorage.removeItem('le_session');
+            location.reload();
+        }
     </script>
 </body>
 </html>
