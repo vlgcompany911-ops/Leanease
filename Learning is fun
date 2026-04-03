@@ -3,72 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnEase Pro - AI Integrated</title>
-    <link rel="icon" type="image/jpeg" href="logo.jpg">
+    <title>LearnEase - Study Hub</title>
     <style>
-        :root { --primary: #2563eb; --secondary: #64748b; --success: #10b981; --bg: #f8fafc; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        :root { 
+            --bg-dark: #000000; 
+            --bg-dash: #0a0a0a;
+            --surface: #141414;
+            --accent: #d4ff00; /* Neon Yellow from video */
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --border: #222222;
+        }
+        
+        body, html { margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg-dark); height: 100%; color: var(--text-main); overflow-x: hidden; }
+        * { box-sizing: border-box; }
         .hidden { display: none !important; }
-        
-        /* Dashboard Layout */
-        header { background: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
-        .db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; padding: 20px; max-width: 1000px; margin: auto; }
-        .db-card { padding: 25px 15px; border-radius: 18px; color: white; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .db-card:active { transform: scale(0.95); }
 
-        /* Micro AI Floating Button */
-        #aiTrigger { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4); z-index: 9999; border: none; }
+        /* ================= AUTH VIEW (From Previous) ================= */
+        .hero-section { height: 45vh; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .welcome-back { color: var(--accent); font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; }
+        .sub-text { font-size: 0.9rem; opacity: 0.9; font-weight: 300; }
+        .login-container { background: white; color: black; border-radius: 30px 30px 0 0; min-height: 55vh; margin-top: -40px; padding: 40px 30px; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 10; }
+        .logo-area { text-align: center; margin-bottom: 30px; }
+        .logo-icon { width: 50px; margin-bottom: 10px; }
+        .brand-name { font-size: 1.8rem; font-weight: 900; letter-spacing: 1px; margin: 0; }
+        .tagline { font-size: 0.75rem; color: #6b7280; margin-top: 5px; }
+        .form-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 25px; }
+        .input-group { width: 100%; max-width: 400px; margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.8rem; color: #6b7280; margin-bottom: 8px; font-weight: 500; }
+        .input-field { width: 100%; padding: 14px; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; background: #f9fafb; outline: none; }
+        .input-field:focus { border-color: black; }
+        .pass-wrapper { position: relative; }
+        .eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.5; }
+        .options-row { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 25px; }
+        .checkbox-area { display: flex; align-items: center; gap: 8px; color: #374151; cursor: pointer; }
+        .forgot-link { color: #000; text-decoration: none; font-weight: 600; }
+        .sign-in-btn { width: 100%; max-width: 400px; background: black; color: white; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .sign-in-btn:active { transform: scale(0.98); }
+        .footer-text { margin-top: 25px; font-size: 0.85rem; color: #6b7280; }
+        .signup-link { color: black; font-weight: bold; text-decoration: none; }
+
+        /* ================= DARK DASHBOARD (From Video) ================= */
+        #dashView { background: var(--bg-dash); min-height: 100vh; padding-bottom: 100px; }
+        .dash-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border); background: var(--bg-dark); position: sticky; top: 0; z-index: 50; }
+        .dash-logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; }
+        .dash-avatar { width: 35px; height: 35px; background: var(--bg-dark); color: white; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
         
-        /* AI Chat Box */
-        #aiWindow { position: fixed; bottom: 90px; right: 20px; width: 320px; height: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); flex-direction: column; z-index: 10000; overflow: hidden; display: none; }
-        .ai-header { background: var(--primary); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; }
+        .hub-container { padding: 30px 20px; max-width: 800px; margin: auto; }
+        .hub-title { font-size: 1.8rem; font-weight: bold; margin: 0 0 10px 0; }
+        .hub-subtitle { color: var(--text-muted); font-size: 0.95rem; margin: 0 0 30px 0; line-height: 1.5; }
+
+        /* Feature Cards */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; cursor: pointer; transition: 0.3s ease; display: block; text-decoration: none; color: white; }
+        .card:hover, .card:active { border-color: var(--accent); transform: translateY(-2px); }
+        .card-icon { width: 45px; height: 45px; background: rgba(212, 255, 0, 0.1); color: var(--accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 16px; }
+        .card-title { font-size: 1.2rem; font-weight: 600; margin: 0 0 8px 0; }
+        .card-desc { color: var(--text-muted); font-size: 0.9rem; margin: 0 0 16px 0; line-height: 1.4; }
+        .badge { display: inline-block; background: rgba(212, 255, 0, 0.1); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+
+        /* Initial Features Grid */
+        .section-label { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin: 30px 0 15px 0; font-weight: bold; }
+        .grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .mini-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; cursor: pointer; transition: 0.3s ease; text-align: center; }
+        .mini-card:hover, .mini-card:active { border-color: var(--accent); }
+        .mini-icon { font-size: 1.8rem; margin-bottom: 10px; }
+        .mini-title { font-size: 1rem; font-weight: 600; margin: 0 0 5px 0; }
+        .mini-desc { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+
+        /* ================= MICRO AI (Retained & Themed) ================= */
+        #aiTrigger { position: fixed; bottom: 25px; right: 25px; width: 60px; height: 60px; background: var(--accent); border-radius: 50%; color: black; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; box-shadow: 0 8px 20px rgba(212, 255, 0, 0.3); z-index: 9999; border: none; transition: 0.3s; }
+        #aiTrigger:active { transform: scale(0.9); }
+        
+        #aiWindow { position: fixed; bottom: 100px; right: 20px; width: 320px; height: 450px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-direction: column; z-index: 10000; overflow: hidden; display: none; }
+        .ai-header { background: var(--bg-dark); border-bottom: 1px solid var(--border); color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .ai-messages { flex-grow: 1; padding: 15px; overflow-y: auto; font-size: 0.9rem; }
-        .ai-input-area { padding: 10px; border-top: 1px solid #eee; display: flex; gap: 5px; }
-        input[type="text"] { flex-grow: 1; border: 1px solid #ddd; border-radius: 20px; padding: 8px 15px; outline: none; }
+        .ai-input-area { padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--bg-dark); }
+        .ai-input-area input { flex-grow: 1; background: var(--surface); border: 1px solid var(--border); color: white; border-radius: 20px; padding: 10px 15px; outline: none; }
+        .ai-input-area input:focus { border-color: var(--accent); }
+        .ai-btn { background: var(--accent); color: black; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
 
-        .bg-blue { background: #3b82f6; } .bg-purple { background: #a855f7; } .bg-orange { background: #f97316; } .bg-green { background: #10b981; }
+        .msg-ai { background: #222; color: white; padding: 10px 15px; border-radius: 12px 12px 12px 0; margin-bottom: 10px; display: inline-block; max-width: 85%; }
+        .msg-user { background: var(--accent); color: black; padding: 10px 15px; border-radius: 12px 12px 0 12px; margin-bottom: 10px; display: inline-block; max-width: 85%; float: right; font-weight: 500; }
+        .clearfix::after { content: ""; clear: both; display: table; }
     </style>
 </head>
 <body>
 
-    <div id="dashboardPage">
-        <header>
-            <div style="font-weight:bold;">LearnEase Pro</div>
-            <div id="status" style="color:var(--success); font-size:0.8rem;">● Online</div>
-        </header>
-
-        <div class="db-grid">
-            <div class="db-card bg-blue" onclick="startMode('Exam')"><h4>🏆 Exam</h4><p>Timed</p></div>
-            <div class="db-card bg-purple" onclick="startMode('Practice')"><h4>📝 Practice</h4><p>Feedback</p></div>
-            <div class="db-card bg-orange" onclick="startMode('Study')"><h4>📖 Study</h4><p>Untimed</p></div>
-            <div class="db-card bg-green" onclick="startMode('History')"><h4>📊 History</h4><p>Results</p></div>
+    <div id="authView">
+        <div class="hero-section">
+            <div class="welcome-back">Welcome back to LearnEase</div>
+            <div class="sub-text">Log in and keep studying smarter</div>
+        </div>
+        <div class="login-container">
+            <div class="logo-area">
+                <img src="https://cdn-icons-png.flaticon.com/512/2040/2040652.png" class="logo-icon" alt="brain">
+                <h1 class="brand-name">LEARNEASE</h1>
+                <div class="tagline">Your AI Study companion</div>
+            </div>
+            <h2 class="form-title">Login into your account</h2>
+            <div class="input-group">
+                <label>Email or Learner ID</label>
+                <input type="email" id="email" class="input-field" placeholder="vlgcompany911@gmail.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <div class="pass-wrapper">
+                    <input type="password" id="pass" class="input-field" placeholder="Enter your password">
+                    <span class="eye-icon" onclick="alert('Password hidden for security')">👁️</span>
+                </div>
+            </div>
+            <div class="options-row">
+                <label class="checkbox-area"><input type="checkbox" checked> Keep me logged in</label>
+                <a href="#" class="forgot-link" onclick="alert('Reset link sent!')">Forgot Password?</a>
+            </div>
+            <button class="sign-in-btn" onclick="handleLogin()">Sign In</button>
+            <p class="footer-text">Not registered yet? <a href="#" class="signup-link">Sign up here</a></p>
         </div>
     </div>
 
-    <button id="aiTrigger" onclick="toggleAI()">🤖</button>
+    <div id="dashView" class="hidden">
+        <header class="dash-header">
+            <div class="dash-logo">LEARNEASE</div>
+            <div class="dash-avatar" id="userAvatar" onclick="alert('Profile Settings coming soon!')">V</div>
+        </header>
 
-    <div id="aiWindow">
-        <div class="ai-header">
-            <span>Micro AI Tutor</span>
-            <span style="cursor:pointer;" onclick="toggleAI()">×</span>
+        <div class="hub-container">
+            <h1 class="hub-title">Welcome to your Study Hub</h1>
+            <p class="hub-subtitle">AI-powered tools to summarize notes, solve exam questions, and access quality study materials. Everything you need to excel academically.</p>
+
+            <div class="card" onclick="alert('Opening AI Exam Solver...')">
+                <div class="card-icon">🧮</div>
+                <h3 class="card-title">Solve Exam Questions</h3>
+                <p class="card-desc">Get instant step-by-step solutions to examination questions. Understand concepts deeply.</p>
+                <span class="badge">Step-by-Step</span>
+            </div>
+
+            <div class="card" onclick="alert('Opening AI Summarizer...')">
+                <div class="card-icon">📄</div>
+                <h3 class="card-title">Summarize Notes & PDFs</h3>
+                <p class="card-desc">Upload your study materials, PDFs, or handwritten notes and get AI-powered summaries in seconds.</p>
+                <span class="badge">AI-Powered</span>
+            </div>
+
+            <div class="card" onclick="alert('Opening Library...')">
+                <div class="card-icon">☁️</div>
+                <h3 class="card-title">Access Study Materials</h3>
+                <p class="card-desc">Browse and download thousands of verified study materials, notes, and resources.</p>
+                <span class="badge">Community-Driven</span>
+            </div>
+
+            <div class="section-label">Computer Based Testing</div>
+            <div class="grid-2x2">
+                <div class="mini-card" onclick="alert('Starting Timed Mock Exam...')">
+                    <div class="mini-icon">🏆</div>
+                    <h4 class="mini-title">Exam</h4>
+                    <p class="mini-desc">Timed Mock</p>
+                </div>
+                <div class="mini-card" onclick="alert('Starting Practice Mode...')">
+                    <div class="mini-icon">📝</div>
+                    <h4 class="mini-title">Practice</h4>
+                    <p class="mini-desc">Live Feedback</p>
+                </div>
+                <div class="mini-card" onclick="alert('Starting Study Mode...')">
+                    <div class="mini-icon">📖</div>
+                    <h4 class="mini-title">Study</h4>
+                    <p class="mini-desc">Untimed Review</p>
+                </div>
+                <div class="mini-card" onclick="alert('Opening Results History...')">
+                    <div class="mini-icon">📊</div>
+                    <h4 class="mini-title">History</h4>
+                    <p class="mini-desc">Your Results</p>
+                </div>
+            </div>
         </div>
-        <div class="ai-messages" id="aiMsgs">
-            <div style="background:#f1f5f9; padding:10px; border-radius:10px; margin-bottom:10px;">Hello Victory! Need help with GET 205 Fluid Mechanics?</div>
-        </div>
-        <div class="ai-input-area">
-            <input type="text" id="aiQuery" placeholder="Ask a question...">
-            <button onclick="askAI()" style="background:var(--primary); color:white; border:none; border-radius:50%; width:35px; height:35px; cursor:pointer;">&rarr;</button>
+
+        <button id="aiTrigger" onclick="toggleAI()">🤖</button>
+
+        <div id="aiWindow">
+            <div class="ai-header">
+                <span>Micro AI Tutor</span>
+                <span style="cursor:pointer; font-size:1.5rem;" onclick="toggleAI()">×</span>
+            </div>
+            <div class="ai-messages" id="aiMsgs">
+                <div class="clearfix"><div class="msg-ai">System Online. How can I assist with your studies today?</div></div>
+            </div>
+            <div class="ai-input-area">
+                <input type="text" id="aiQuery" placeholder="Ask a question...">
+                <button class="ai-btn" onclick="askAI()">↑</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 1. DASHBOARD MODE HANDLER
-        function startMode(mode) {
-            console.log("Starting " + mode);
-            alert("Entering " + mode + " Mode. Loading academic questions...");
+        function handleLogin() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('pass').value;
+
+            if(!email || pass.length < 6) {
+                alert("Enter a valid email and 6-character password.");
+                return;
+            }
+
+            const initial = email.charAt(0).toUpperCase();
+            const sessionData = {
+                user: email.split('@')[0],
+                avatar: initial,
+                loginTime: new Date().getTime()
+            };
+            localStorage.setItem('learnease_session', JSON.stringify(sessionData));
+            
+            showDashboard(sessionData);
         }
 
-        // 2. MICRO AI LOGIC
+        function showDashboard(session) {
+            // Hide Login, Show Dashboard
+            document.getElementById('authView').classList.add('hidden');
+            document.getElementById('dashView').classList.remove('hidden');
+            
+            // Set pure black background for body to match dashboard theme
+            document.body.style.backgroundColor = 'var(--bg-dash)';
+            
+            // Update Profile Avatar Initial
+            document.getElementById('userAvatar').innerText = session.avatar;
+        }
+
+        // Micro AI Logic
         function toggleAI() {
             const win = document.getElementById('aiWindow');
             win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
@@ -79,20 +238,33 @@
             if(!q) return;
 
             const msgDiv = document.getElementById('aiMsgs');
-            msgDiv.innerHTML += `<div style="text-align:right; margin-bottom:10px;"><span style="background:var(--primary); color:white; padding:8px 12px; border-radius:12px; display:inline-block;">${q}</span></div>`;
-            
+            // User Message
+            msgDiv.innerHTML += `<div class="clearfix"><div class="msg-user">${q}</div></div>`;
             document.getElementById('aiQuery').value = '';
+            msgDiv.scrollTop = msgDiv.scrollHeight;
 
+            // AI Reply Simulation
             setTimeout(() => {
-                msgDiv.innerHTML += `<div style="text-align:left; margin-bottom:10px;"><span style="background:#f1f5f9; padding:8px 12px; border-radius:12px; display:inline-block;">Analyzing your question about "${q}"... I'm looking into your GET 205 materials now.</span></div>`;
+                msgDiv.innerHTML += `<div class="clearfix"><div class="msg-ai">Processing your question regarding "${q}"... Please hold on.</div></div>`;
                 msgDiv.scrollTop = msgDiv.scrollHeight;
             }, 1000);
         }
 
-        // Check Session
-        window.onload = () => {
-            console.log("LearnEase v23.0 Ready");
-        };
+        // Auto-Check Session on Load
+        window.onload = function() {
+            const session = JSON.parse(localStorage.getItem('learnease_session'));
+            if(session) {
+                const now = new Date().getTime();
+                const diffMinutes = (now - session.loginTime) / 60000;
+                if(diffMinutes < 45) {
+                    // Session Valid - Go straight to dashboard
+                    showDashboard(session);
+                } else {
+                    // Session Expired
+                    localStorage.removeItem('learnease_session');
+                }
+            }
+        }
     </script>
 </body>
 </html>
